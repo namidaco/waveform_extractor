@@ -1,0 +1,7 @@
+rootProject.name = 'waveform_extractor'
+
+dependencyResolutionManagement{
+    repositories{
+        maven { url "https://jitpack.io" }
+    }
+}
