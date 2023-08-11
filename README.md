@@ -32,8 +32,9 @@ allprojects {
 - Basic Usage:
 ```dart
 final waveformExtractor = WaveformExtractor();
-final audioFile = File(audioPath);
-final result = await waveformExtractor.extractWaveform(audioFile.path);
+final audioSourceFile = audioPath; // source could be a path to local file
+final audioSourceNetwork = audioUrl; // or a network url
+final result = await waveformExtractor.extractWaveform(audioSourceFile);
 print("Waveform: $result");
 
 ```
@@ -84,7 +85,7 @@ _waveformExtractor.clearAllWaveformCache();
 ```
 - Compressing:
 ```dart
-// Compressing is a good choice for long audios, as the resulted data would be huge
+// Compressing is a good choice for long audios, as the resulted data would be huge; causing, possibly, memory overload or jank
 final staticSamples = 4; // use default sample for all audios
 final dynamicSamples = _waveformExtractor.getSampleRateFromDuration(audioDuration: audioDuration); // or dynamically change depending on audio duration
 _waveformExtractor.extractWaveform(
@@ -92,6 +93,13 @@ _waveformExtractor.extractWaveform(
     samplesPerSecond: dynamicSamples,
     );
 ```
+
+## Benchmarks
+- waveform_extractor is extremely fast, thanks to the inlying ffmpeg implementations made by Amplituda
+- Estimated extraction time:
+  - 1 second for a 3min 20s audio.
+  - 20 seconds for a 1 hour audio.
+- For more details and real-time testing, check out the [full example](https://github.com/namidaco/waveform_extractor/tree/main/example)
 
 ### Special thanks
 [@lincollincol](https://github.com/lincollincol) for providing [Amplituda](https://github.com/lincollincol/Amplituda) Library based on FFMPEG.
