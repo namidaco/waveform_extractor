@@ -1,5 +1,5 @@
 # waveform_extractor
-![waveform](https://github.com/namidaco/waveform_extractor/assets/85245079/7f211b1a-bf98-423a-97fc-1a950762a723)
+![waveform](https://github.com/namidaco/waveform_extractor/assets/85245079/64939e23-35d7-49c9-823b-b9b9ee043c0c)
 
 A Lightweight dart library for extracting waveform data from audio streams using Amplituda.
 
