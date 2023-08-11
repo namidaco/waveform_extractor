@@ -3,6 +3,10 @@ description: A Lightweight dart library for extracting waveform data from audio 
 version: 1.0.0
 homepage: https://github.com/namidaco/waveform_extractor/blob/main/README.md
 repository: https://github.com/namidaco/waveform_extractor
+topics:
+  - audio
+  - waveform
+  - visualizer
 
 environment:
   sdk: ">=3.0.5 <4.0.0"
