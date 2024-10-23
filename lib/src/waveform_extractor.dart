@@ -78,7 +78,7 @@ class WaveformExtractor {
   /// Maximum value is [maxSampleRate] while minimum is 1.
   ///
   /// Increasing [scaleFactor] means quickly approach minimum sampleRate.
-  int getSampleRateFromDuration({
+  static int getSampleRateFromDuration({
     required Duration audioDuration,
     int maxSampleRate = 400,
     double scaleFactor = 0.4,
