@@ -12,12 +12,12 @@ import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import linc.com.amplituda.Amplituda
-import linc.com.amplituda.AmplitudaProgressListener
-import linc.com.amplituda.AmplitudaResult
-import linc.com.amplituda.Cache
-import linc.com.amplituda.Compress
-import linc.com.amplituda.ProgressOperation
+import com.linc.amplituda.Amplituda
+import com.linc.amplituda.AmplitudaProgressListener
+import com.linc.amplituda.AmplitudaResult
+import com.linc.amplituda.Cache
+import com.linc.amplituda.Compress
+import com.linc.amplituda.ProgressOperation
 
 /** WaveformExtractorPlugin */
 class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
