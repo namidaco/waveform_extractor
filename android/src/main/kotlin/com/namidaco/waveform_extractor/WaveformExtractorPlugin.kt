@@ -115,32 +115,38 @@ class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
   }
 
   private fun processAudio(
-      path: String,
-      useCache: Boolean,
-      cacheKey: String?,
-      samplePerSecond: Int?,
-      progressListener: AmplitudaProgressListener?,
-  ): AmplitudaResult<String> {
-    lateinit var ampres: AmplitudaResult<String>
-    val cache = Cache.withParams(if (useCache) Cache.REUSE else Cache.REFRESH, cacheKey)
-    (if (samplePerSecond != null)
+    path: String,
+    useCache: Boolean,
+    cacheKey: String?,
+    samplePerSecond: Int?,
+    progressListener: AmplitudaProgressListener?,
+  ): AmplitudaResult<String>? {
+
+    return try {
+        val cache = Cache.withParams(if (useCache) Cache.REUSE else Cache.REFRESH, cacheKey)
+
+        val request = if (samplePerSecond != null) {
             amplituda.processAudio(
                 path,
                 Compress.withParams(Compress.AVERAGE, samplePerSecond),
                 cache,
                 progressListener,
             )
-        else
-            amplituda.processAudio(
-                path,
-                cache,
-                progressListener,
-            ))
-        .get({ result -> ampres = result }) { exception ->
-          Log.d(this.javaClass.name, "Error Extracting Waveform Data", exception)
+        } else {
+            amplituda.processAudio(path, cache, progressListener)
         }
-    return ampres
+
+        var result: AmplitudaResult<String>? = null
+        request.get({ r -> result = r }) { e ->
+            Log.w(this.javaClass.name, "Error extracting waveform", e)
+        }
+        result
+    } catch (e: Exception) {
+        Log.w(this.javaClass.name, "Failed to process audio: $path", e)
+        null
+    }
   }
+
 
   private fun extractWaveform(
       path: String,
@@ -148,20 +154,27 @@ class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
       cacheKey: String?,
       samplePerSecond: Int?,
       ampresult: AmplitudaResult<String>?
-  ): HashMap<String, Any> {
+  ): HashMap<String, Any?> {
 
-    val result = ampresult ?: processAudio(path, useCache, cacheKey, samplePerSecond, null)
-    val amplitudesData: List<Int> = result.amplitudesAsList()
-    val amplitudesForFirstSecond: List<Int> = result.amplitudesForSecond(1)
-    val duration: Long = result.getAudioDuration(AmplitudaResult.DurationUnit.MILLIS)
-    val source: String = result.audioSource
+    val waveformMap = HashMap<String, Any?>()
+    try {
+      val result = ampresult ?: processAudio(path, useCache, cacheKey, samplePerSecond, null)
+      if (result != null) {
+        val amplitudesData: List<Int> = result.amplitudesAsList()
+        val amplitudesForFirstSecond: List<Int> = result.amplitudesForSecond(1)
+        val duration: Long = result.getAudioDuration(AmplitudaResult.DurationUnit.MILLIS)
+        val source: String = result.audioSource
 
-    val waveformMap = HashMap<String, Any>()
-    waveformMap["amplitudesData"] = amplitudesData
-    waveformMap["amplitudesForFirstSecond"] = amplitudesForFirstSecond
-    waveformMap["duration"] = duration
-    waveformMap["source"] = source
+        waveformMap["amplitudesData"] = amplitudesData
+        waveformMap["amplitudesForFirstSecond"] = amplitudesForFirstSecond
+        waveformMap["duration"] = duration
+        waveformMap["source"] = source
 
+        return waveformMap
+      }
+    } catch (e: Exception) {
+        Log.w(this.javaClass.name, "Failed to extract waveform from result: $path", e)
+    }
     return waveformMap
   }
 
@@ -176,6 +189,15 @@ class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
     }
   }
 
+  private fun resultToAmplitudesList(res: AmplitudaResult<String>?, path: String) : List<Int>? {
+    try {
+      return res?.amplitudesAsList()
+    } catch (e: Exception) {
+        Log.w(this.javaClass.name, "Failed to convert result waveform to amplitudes list: $path", e)
+    }
+    return null;
+  }
+
   private fun extractWaveformDataOnly(
       path: String,
       useCache: Boolean,
@@ -183,7 +205,7 @@ class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
       samplePerSecond: Int?,
   ): List<Int>? {
     val result = processAudio(path, useCache, cacheKey, samplePerSecond, null)
-    val waveform = result.amplitudesAsList()
+    val waveform = resultToAmplitudesList(result, path)
     return waveform
   }
 
@@ -194,7 +216,7 @@ class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
       samplePerSecond: Int?,
   ) {
     extractToStreamGeneral(path, useCache, cacheKey, samplePerSecond) { result ->
-      mapOf("waveform" to result.amplitudesAsList())
+      mapOf("waveform" to resultToAmplitudesList(result, path))
     }
   }
 
@@ -203,7 +225,7 @@ class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
       useCache: Boolean,
       cacheKey: String?,
       samplePerSecond: Int?,
-      resultCallback: (AmplitudaResult<String>) -> Map<String, Any>,
+      resultCallback: (AmplitudaResult<String>?) -> Map<String, Any?>,
   ) {
 
     eventChannel?.setStreamHandler(
@@ -259,7 +281,7 @@ class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
                       samplePerSecond,
                       progressListener,
                   )
-              val eventData = HashMap<String, Any>()
+              val eventData = HashMap<String, Any?>()
               eventData["path"] = path
               eventData["event"] = "done"
               val additional = resultCallback(result)
