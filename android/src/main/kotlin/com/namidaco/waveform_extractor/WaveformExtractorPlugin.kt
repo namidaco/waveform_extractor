@@ -40,8 +40,8 @@ class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
-    val path = call.argument<String>("path")
-    val useCache = call.argument<Boolean>("useCache")
+    val path = call.argument<String?>("path")
+    val useCache = call.argument<Boolean>("useCache") ?: true
     val cacheKey = call.argument<String?>("cacheKey")
     val samplePerSecond = call.argument<Int?>("samplePerSecond")
     val postProgress = call.argument<Boolean?>("postProgress") ?: false
@@ -100,11 +100,10 @@ class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
         }
       }
       "clearCache" -> {
-        val audioPath = call.argument<String?>("audioPath")
-        if (audioPath != null || cacheKey != null) {
-          result.success(clearCache(cacheKey, audioPath))
+        if (path != null || cacheKey != null) {
+          result.success(clearCache(path, cacheKey))
         } else {
-          result.error("Arguments Missing", "audioPath or cacheKey should be provided", "")
+          result.error("Arguments Missing", "path or cacheKey should be provided", "")
         }
       }
       "clearAllWaveformCache" -> {
@@ -302,11 +301,11 @@ class WaveformExtractorPlugin : FlutterPlugin, MethodCallHandler, Activity() {
     amplituda.clearCache()
   }
 
-  private fun clearCache(cacheKey: String?, audioPath: String?) {
+  private fun clearCache(path: String?, cacheKey: String?) {
     if (cacheKey != null) {
       amplituda.clearCache(cacheKey, true)
-    } else if (audioPath != null) {
-      amplituda.clearCache(audioPath, false)
+    } else if (path != null) {
+      amplituda.clearCache(path, false)
     }
   }
 

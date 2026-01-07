@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+
 import 'package:waveform_extractor/model/waveform.dart';
 import 'package:waveform_extractor/model/waveform_progress.dart';
 
@@ -145,7 +146,7 @@ class MethodChannelWaveformExtractor extends WaveformExtractorPlatform {
         'audioPath or cacheKey should be provided');
 
     await methodChannel.invokeMethod('clearCache', {
-      "audioPath": audioPath,
+      "path": audioPath,
       "cacheKey": cacheKey,
     });
   }

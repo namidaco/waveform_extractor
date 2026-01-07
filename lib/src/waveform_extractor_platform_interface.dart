@@ -1,4 +1,5 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
 import 'package:waveform_extractor/model/waveform.dart';
 import 'package:waveform_extractor/model/waveform_progress.dart';
 
