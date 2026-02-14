@@ -30,6 +30,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace = "com.namidaco.waveform_extractor"
     compileSdkVersion 31
 
     compileOptions {
